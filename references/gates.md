@@ -1,13 +1,15 @@
 # Gate details — discovery, design, execution, regression, audits
 
-Companion to SKILL.md. Read the section for the gate you are entering; each ends with the
-exit criterion that must be true before moving on. Gates 5–12 (framework build) are in
-`automation-framework.md`, Gate 14 (triage) in `failure-triage.md`, Gate 21 (reports) in
-`reporting.md`. Templates for every deliverable live in `assets/artifact-templates/`.
+Companion to SKILL.md. Read the section for the gate you are entering; each ends with the exit
+criterion that must be true before moving on and names the template it feeds. Gates 5–12
+(framework build) are in `automation-framework.md`, Gate 14 (triage) in `failure-triage.md`,
+Gate 21 (reports) in `reporting.md`. A complete filled artifact set from a real run is in
+`assets/examples/demo-app-engagement/qa-artifacts/`.
 
 Contents
+- [Proportionality: sizing, sampling, effort caps](#proportionality-sizing-sampling-effort-caps)
 - [Gate 0 — Environment & scope discovery](#gate-0--environment--scope-discovery)
-- [Gate 1 — Full repository reconnaissance](#gate-1--full-repository-reconnaissance)
+- [Gate 1 — Repository reconnaissance](#gate-1--repository-reconnaissance)
 - [Gate 2 — Application feature inventory](#gate-2--application-feature-inventory)
 - [Gate 3 — Test strategy & traceability](#gate-3--test-strategy--traceability)
 - [Gate 4 — Test case generation](#gate-4--test-case-generation)
@@ -21,174 +23,194 @@ Contents
 
 ---
 
-## Gate 0 — Environment & scope discovery
+## Proportionality: sizing, sampling, effort caps
 
-Objective: know how to launch and reach the application before anything else.
+Size the repository in the first 15 minutes and say it in the Gate 0 status line:
 
-Identify: operating system · Python version · browser availability and versions · Selenium
-version · application startup procedure · required environment variables · required services ·
-database availability · API availability · authentication requirements · test accounts · seed
-data · Docker/container setup · CI/CD configuration · existing test infrastructure · existing
-automation · build/install commands.
+| Size | Signal | What changes |
+|---|---|---|
+| S | ≤ ~15 routes, ≤ 3 entities, ≤ 2 roles | Gates 1–4 in one pass; one document with the four headings is fine; full suite after the vertical slice |
+| M | ≤ ~60 routes, ≤ 10 entities, ≤ 4 roles | Full artifacts for Critical/High features before the first execution; Medium/Low after the vertical slice is green |
+| L | more, or several deployables | One feature area at a time through Gate 13; report; next area. Never "recon everything first" |
 
-Inspect: README · Makefile · package files · requirements files · pyproject.toml · Dockerfiles ·
-docker-compose files · CI configuration · environment examples · scripts · test directories ·
-deployment files.
+Sampling order for Gate 1: entry points and routes → authentication and authorization → money,
+deletion, state machines, uploads → shared services and middleware → the rest as time allows.
+Everything not read goes in `coverage-gaps.md` under "Unread code" — a listed gap is a finding,
+an unlisted one is a lie of omission.
 
-Then actually start the application and hit it (browser or HTTP). A startup command copied from
-a README that you have not run is an assumption, not a finding.
+Effort caps (share of the engagement): recon ≤ 20%, design ≤ 20%. When exceeded, write what is
+known plus the gap and move on to the vertical slice; the first real execution teaches more than
+another hour of reading.
 
-Deliverable: `qa-artifacts/environment-map.md` — environment, dependencies, startup instructions,
-browser matrix, required credentials/configuration (names, never values), known limitations,
-existing tests, existing automation.
-
-Exit criterion: you can launch and test the application. If not, stop and investigate the gap
-(missing service, credentials, browser). Do not proceed on the assumption that it will work later.
+Depth modes: **quick pass** (Gate 0, sampled recon, P0 only, one execution, triage, short report) ·
+**standard** (default; every gate, P0–P1 automated) · **deep** (everything, edge-case checklist per
+feature, multi-browser, `--a11y`, Gate 18 on every role × object).
 
 ---
 
-## Gate 1 — Full repository reconnaissance
+## Gate 0 — Environment & scope discovery
 
-Objective: understand the real architecture and behavior from the implementation.
+Objective: launch and reach the application before anything else — and prove it by executing.
 
-Frontend — identify: framework · routing · pages · components · forms · modals · tables ·
-filters · search · pagination · uploads · downloads · authentication UI · role-based UI · loading
-states · empty states · error states · toasts · notifications · navigation · responsive behavior ·
-client-side validation · API clients · state management.
+Identify: operating system · Python version · browsers and versions · Selenium version · app
+startup procedure · required environment variables (names, never values) · required services ·
+database · API · authentication · test accounts · seed data · Docker/compose · CI/CD · existing
+test infrastructure and automation · build/install commands.
 
-Backend — identify: routes · HTTP methods · request schemas · response schemas · authentication ·
-authorization · middleware · services · repositories · background jobs · integrations · error
-handling · validation · database transactions.
+Inspect: README · Makefile · package/requirements files · pyproject · Dockerfiles · compose files ·
+CI configuration · env examples · scripts · test directories · deployment files.
 
-Database — identify: main entities · relationships · constraints · unique fields · foreign keys ·
-state fields · soft deletes · audit fields · important invariants.
+Then start the application and hit it. Scaffold the framework, fill `qa/.env`, and run:
 
-Integrations — identify: external APIs · email · storage · payments · queues · third-party
-services · webhooks · authentication providers.
+```bash
+python run_tests.py --selftest     # the runner proves itself (no browser)
+python run_tests.py --smoke        # ENV-001 settings · ENV-002 browser reaches the app · ENV-003 API health
+```
 
-Read the code paths, not just the file names. When the frontend calls an endpoint, open the
-endpoint. When a rule is mentioned in a comment, find where it is enforced. Note where the UI
-hides a control but the API does not enforce the restriction — that is a Gate 18 finding.
+If the machine has no browser or the app is unreachable, this is where you find out — and where
+you stop and say so, instead of designing tests for a system you cannot run.
 
-Deliverable: `qa-artifacts/repository-recon.md` — architecture diagram in text form, frontend
-map, backend map, database map, integration map, authentication model, authorization model,
-important business rules, high-risk areas, existing test coverage, missing coverage.
+Deliverable: `qa-artifacts/environment-map.md` (template `assets/artifact-templates/environment-map.md`).
+
+Exit criterion (literal): **the ENV-* smoke tests have executed** and their run id is cited in the
+environment map. "The README says `npm start`" is not an exit.
+
+---
+
+## Gate 1 — Repository reconnaissance
+
+Objective: understand the real architecture and behavior from the implementation, sampled by risk.
+
+Frontend — framework · routing · pages · components · forms · modals · tables · filters · search ·
+pagination · uploads · downloads · auth UI · role-based UI · loading/empty/error states · toasts ·
+navigation · responsive behavior · client-side validation · API clients · state management.
+
+Backend — routes · methods · request/response schemas · authentication · authorization · middleware ·
+services · repositories · background jobs · integrations · error handling · validation · transactions.
+
+Database — entities · relationships · constraints · unique fields · foreign keys · state fields ·
+soft deletes · audit fields · invariants.
+
+Integrations — external APIs · email · storage · payments · queues · webhooks · auth providers.
+
+Read the code paths, not the file names. When the frontend calls an endpoint, open the endpoint.
+When a comment mentions a rule, find where it is enforced and cite `file:line`. Where the UI hides
+a control but the API does not enforce the restriction, that is a Gate 18 finding. Apply the
+oracle rule: the code tells you what the app *does*; note separately what docs/requirements say
+it *should* do, and mark disagreements as candidate defects.
+
+Deliverable: `qa-artifacts/repository-recon.md` (template `assets/artifact-templates/repository-recon.md`).
 
 Exit criterion: you can explain the architecture and the major business flows in your own words,
-citing where each is implemented.
+citing where each is implemented, and the unread areas are listed.
 
 ---
 
 ## Gate 2 — Application feature inventory
 
-Objective: an exhaustive inventory of user-visible and business-critical functionality.
+Objective: an inventory of user-visible and business-critical functionality, risk-ranked.
 
-For every feature record: feature name · related pages · user roles · API endpoints · database
-entities · preconditions · happy path · negative paths · state transitions · dependencies · side
-effects · expected result · risk level.
+For every feature: name · pages · roles · endpoints · entities · preconditions · happy path ·
+negative paths · state transitions · dependencies · side effects · risk level.
 
-Classify Critical / High / Medium / Low by business impact, security impact, data integrity
-impact, frequency of use, failure probability, complexity and dependency count — not by size.
-A tiny "change role" endpoint can be Critical; a large settings page can be Low.
+Rank Critical / High / Medium / Low by business impact, security impact, data integrity, frequency
+of use, failure probability, complexity and dependency count — not by size. A four-line ownership
+check can be Critical; a large settings page can be Low. Write the rationale for every Critical/High.
 
-Deliverable: `qa-artifacts/feature-inventory.md`.
+Deliverable: `qa-artifacts/feature-inventory.md` (template `assets/artifact-templates/feature-inventory.md`).
 
-Exit criterion: every feature a user can reach has a row, and the Critical/High set is
-defensible with a stated rationale.
+Exit criterion: every reachable feature has a row and the Critical/High set has a stated rationale.
 
 ---
 
 ## Gate 3 — Test strategy & traceability
 
-Objective: a risk-based plan that says what is tested, how (UI vs API), and in what order.
+Objective: a risk-based plan that says what is tested, how (UI vs API), in what order, and what is
+deliberately not automated.
 
-Coverage must include:
+Coverage areas — Functional: happy · negative · boundary · invalid · missing · null/empty · duplicate ·
+wrong types · state transitions · multi-step · cross-feature. Authentication: login · logout ·
+invalid credentials · expiry · refresh · unauthorized access · direct URL · persistence.
+Authorization: every meaningful role × permission, UI *and* API, object-level, escalation — hidden
+UI controls are not authorization. Validation: min · max · exactly · just outside · required ·
+formats · unicode · special characters · long · duplicates. State: initial · loading · empty ·
+success · failure · partial · expired · deleted · disabled · completed. Integration: browser →
+frontend → API → backend → DB → external, plus direct API checks. Regression: every bug becomes a
+regression candidate.
 
-Functional — happy paths · negative paths · boundary values · invalid input · missing input ·
-null/empty values · duplicate data · incorrect data types · state transitions · multi-step
-workflows · cross-feature workflows.
+Name the vertical slice (one P0 journey) that will be built and executed first.
 
-Authentication — login · logout · invalid credentials · session expiration · refresh behavior ·
-unauthorized access · direct URL access · authentication persistence.
+Traceability is **generated**, not maintained: `python run_tests.py --traceability` builds the
+matrix from `test-cases.md`, the `@test` registry and the latest `report.json`. At Gate 3 it lists
+the planned cases as "not automated"; after each run it carries results and classifications.
 
-Authorization — every meaningful role/permission combination; verify UI restrictions, API
-restrictions, direct endpoint access, object-level authorization, privilege escalation
-possibilities. Hidden UI controls are not authorization — always check the API directly.
+Deliverables: `qa-artifacts/test-strategy.md` (template `assets/artifact-templates/test-strategy.md`)
+and `qa-artifacts/traceability-matrix.md` (generated; format in `reporting.md#traceability`).
 
-Validation — minimum · maximum · exactly minimum · exactly maximum · just below minimum · just
-above maximum · required fields · invalid formats · unicode · special characters · long values ·
-duplicate values.
-
-State — initial · loading · empty · success · failure · partial · expired · deleted · disabled ·
-already-completed.
-
-Integration — the important flows across Browser → Frontend → API → Backend → Database →
-External integration, plus direct API checks that isolate backend behavior.
-
-Regression — every discovered bug becomes a regression candidate where appropriate.
-
-Deliverables: `qa-artifacts/test-strategy.md` and `qa-artifacts/traceability-matrix.md`
-(Feature → Requirement/Behavior → Test Case → Automation → Result).
-
-Exit criterion: each Critical/High feature has a stated approach and priority, and the matrix
-has a row for every behavior that will be tested.
+Exit criterion: each Critical/High feature has an approach and priority, the vertical slice is
+named, and the matrix has a row for every behavior that will be tested.
 
 ---
 
 ## Gate 4 — Test case generation
 
-Objective: comprehensive, risk-based scenarios — not one test per button.
+Objective: risk-based scenarios, not one test per button.
 
-For each important feature produce the core cases: happy path · alternative valid path · invalid
-path · boundary path · permission path · state path · error path · recovery path · integration
-path.
+Per important feature, the core cases: happy · alternative valid · invalid · boundary · permission ·
+state · error · recovery · integration. Then the edge cases: empty · one · many · duplicate · rapid
+repeats · refresh mid-operation · back · forward · multiple tabs · session expiry · network failure ·
+delayed API · backend error · partial failure · races · concurrency.
 
-Then consider the edge cases: empty data · one record · many records · duplicate records · rapid
-repeated actions · refresh during operation · back navigation · forward navigation · multiple
-tabs · session expiration · network failure · delayed API · backend error · partial failure ·
-race conditions · concurrent actions.
-
-Every test case contains: ID · feature · priority · preconditions · test data · steps · expected
-result · risk · automation strategy (UI, API or both).
+Every case: `TC-<AREA>-<n>` · feature · priority · preconditions · test data · steps · expected result
+**with its source** (verified implementation `file:line`, a requirement, or "assumed expected — needs
+product confirmation", which makes it a characterization test) · risk · automation strategy (UI, API,
+both, manual) · `test id in code: \`AREA-nnn\`` — the same id used in `@test(id=...)`. The
+traceability generator parses that line.
 
 Priorities: P0 catastrophic/critical workflow · P1 business-critical/high-risk · P2 important
-normal functionality · P3 low-risk/secondary.
+normal · P3 low-risk/secondary.
 
-Deliverable: `qa-artifacts/test-cases.md`.
+Deliverable: `qa-artifacts/test-cases.md` (template `assets/artifact-templates/test-cases.md`).
 
-Exit criterion: P0/P1 cases exist for every Critical/High feature, negative and boundary cases
-are present, and each case names its automation strategy.
+Exit criterion: P0/P1 cases exist for every Critical/High feature, negative and boundary cases are
+present, every expected result names its source, and each case names its automation strategy.
 
 ---
 
 ## Gate 13 — Real execution
 
-Objective: run the suite against the real system and collect evidence. Generating code is not
-execution.
+Objective: run the suite against the real system and collect evidence. Generating code is not execution.
 
-Phases, in order:
+Phases, in order — stop and triage between phases when a phase surfaces blocking failures (a broken
+login makes later phases noise):
 
-- Phase A — environment smoke (`--smoke`, ENV-* tests): browser starts, app reachable, API answers.
-- Phase B — P0 (`--priority P0`).
-- Phase C — P1 (`--priority P1`).
-- Phase D — regression (`--regression`).
-- Phase E — cross-feature flows (`--e2e`).
-- Phase F — integration/API checks (`--integration`).
+- A — environment smoke: `--smoke` (ENV-*).
+- B — P0: `--priority P0`.
+- C — P1: `--priority P1`.
+- D — regression: `--regression`.
+- E — cross-feature flows: `--e2e`.
+- F — integration/API: `--integration`.
 
-Stop and triage between phases when a phase surfaces blocking failures; a broken login makes
-later phases noise.
+For an S-sized app one run of everything is acceptable — the runner orders P0 first anyway; record
+which tests belong to which phase in the execution report.
 
-Capture for every failure: test ID · feature · step · timestamp · URL · browser · exception ·
-stack trace · screenshot · page source · logs · API evidence when relevant · duration · retry
-behavior. The bundled runner writes these to `reports/<run-id>/artifacts/<test-id>/`.
+Useful during execution: `--fail-fast` in phase B, `--rerun-failed <run-id> --retries 1` to check
+determinism, `--test <ID> --repeat 5` before any flaky claim, `--headed` and `--trace` for a failure
+the artifacts cannot explain, `--parallel N` only once the suite is green sequentially.
 
-If the environment cannot execute (no browser, app unreachable), report exactly that. Never
-report an unexecuted test as passed; mark the work as blocked at Gate 13 with the reason.
+The runner captures per failure: exception + traceback · screenshot · page source · URL · browser
+console · failed/non-2xx network requests · the last API exchange · duration · every attempt, under
+`reports/<run-id>/artifacts/<test-id>/`, plus `report.json`, `junit.xml` and `execution-report.md`.
+Run metadata records browser/driver versions and the app's git SHA/branch (`QA_APP_REPO`,
+`QA_BUILD_ID`) — a result without a build identifier is not reproducible.
 
-Deliverable: `qa-artifacts/execution-report.md` (consolidated from the per-run reports).
+If the environment cannot execute (no browser, app unreachable), report exactly that with the error
+text and evidence path: **blocked at Gate 13**. Never report an unexecuted test as passed.
 
-Exit criterion: every selected test has an actual result and every FAIL/ERROR/FLAKY has evidence
-on disk.
+Deliverable: `qa-artifacts/execution-report.md` (template `assets/artifact-templates/execution-report.md`),
+consolidated from the per-run reports; then `python run_tests.py --traceability`.
+
+Exit criterion: every selected test has an actual result and every FAIL/ERROR/FLAKY has evidence on disk.
 
 ---
 
@@ -197,83 +219,91 @@ on disk.
 Objective: after fixing automation problems or application bugs, decide what to re-run.
 
 Identify: directly affected features · dependent features · shared components · shared APIs ·
-shared database entities · authentication dependencies · authorization dependencies.
+shared entities · authentication and authorization dependencies.
 
-Run targeted regression first (`--feature X`, `--test ID`), then full regression where risk
-justifies it. Testing only the changed function is not sufficient when the function is shared.
+Run targeted regression first (`--feature X`, `--test ID`, `--rerun-failed`), then full regression
+where risk justifies it. Testing only the changed function is not sufficient when the function is
+shared. Regenerate the traceability matrix afterwards.
 
-Deliverable: `qa-artifacts/regression-report.md`.
+Deliverable: `qa-artifacts/regression-report.md` (template `assets/artifact-templates/regression-report.md`).
 
 ---
 
 ## Gate 16 — PR / change impact analysis
 
-Objective: when a Git diff or PR is available, prioritize tests by blast radius.
+Objective: with a diff or PR, prioritize tests by blast radius.
 
-Analyze: changed files · changed functions · changed components · changed endpoints · database
-migrations · business logic · shared utilities · authentication · authorization · UI flows.
+Analyze: changed files · functions · components · endpoints · migrations · business logic · shared
+utilities · authentication · authorization · UI flows.
 
-Map: Changed code → affected component → affected feature → affected user journey → affected
-tests → required regression.
+Map: changed code → affected component → affected feature → affected journey → affected tests →
+required regression.
 
-Practical steps: `git diff --name-only <base>...<head>`, then for each changed file find its
-importers (grep for the module/component name) and the routes that reach it, then look those
-routes up in the traceability matrix.
+Practical steps: `git diff --name-only <base>...<head>`; for each changed file grep for its
+importers and the routes that reach it; look those routes up in the traceability matrix; run that
+set, then decide on full regression.
 
-Deliverable: the "blast radius" table in `qa-artifacts/regression-report.md`.
+Deliverable: the blast-radius table in `qa-artifacts/regression-report.md`.
 
 ---
 
 ## Gate 17 — Quality review of the automation itself
 
-Audit before declaring the suite ready.
+Audit before declaring the suite ready — a suite that lies quietly is worse than no suite.
 
 Maintainability — duplication · naming · architecture · page objects · components.
-Reliability — explicit waits · stable selectors · isolation · determinism · flakiness.
-Coverage — critical workflows · negative cases · permissions · boundaries · state transitions ·
-regression.
+Reliability — explicit waits · stable selectors · isolation · determinism · measured flakiness.
+Coverage — critical workflows · negative · permissions · boundaries · state transitions · regression.
 Diagnostics — screenshots · logs · stack traces · artifacts · clear classification.
-Performance — identify unnecessarily expensive tests; prefer an integration test for isolated
-backend behavior and an E2E test for cross-system behavior. Do not turn every small validation
-into a full browser test.
+Cost — integration test for isolated backend behavior, E2E for cross-system behavior; no small
+validation as a full browser test.
 
-Concrete checks: grep for `time.sleep`, absolute XPath (`/html/body`), generated class names,
-duplicated locators across pages, tests that depend on records created by other tests, and
-assertions that were softened after a failure.
+Concrete checks (`evals/check_engagement.py` runs the mechanical ones):
+
+```bash
+grep -rn "time.sleep" qa/ --include=*.py            # must be empty outside core/ helpers with a documented reason
+grep -rn "/html/body" qa/ --include=*.py            # absolute XPath: none
+grep -rn "css-[a-z0-9]\{5,\}\|sc-[a-zA-Z]" qa/       # generated class names: none
+python run_tests.py --selftest                       # runner still honest
+```
+
+Also look for locators duplicated across pages, tests that depend on records another test created,
+and assertions softened after a failure (`git log -p qa/tests` tells that story).
 
 ---
 
 ## Gate 18 — Security-aware QA
 
-Where appropriate test: unauthorized access · horizontal privilege escalation · vertical
-privilege escalation · IDOR-style access (change an id in the URL/API and expect 403/404) ·
-session invalidation after logout/password change · authentication bypass · input validation ·
-dangerous parameter manipulation · file upload restrictions (type, size, content) · unexpected
-data exposure in responses · sensitive information in error messages · client/server
-authorization mismatch (UI hides, API allows).
+Where appropriate test: unauthorized access · horizontal privilege escalation · vertical privilege
+escalation · IDOR (change an id in the URL/API, expect 403/404 and an unchanged record) · session
+invalidation after logout / password change · authentication bypass · input validation · dangerous
+parameter manipulation · file upload restrictions (type, size, content) · unexpected data exposure
+in responses · sensitive information in error messages · client/server authorization mismatch (UI
+hides, API allows) · unauthenticated maintenance/test endpoints left enabled.
 
-Use the API client for these: a 200 from an endpoint the role should not reach is stronger
-evidence than a missing button. Never run destructive attacks against production systems.
+Use the API client: a 200 from an endpoint the role should not reach is stronger evidence than a
+missing button. Never run destructive attacks against production systems. This is not a
+penetration test; say so in the report.
 
 ---
 
 ## Gate 19 — Accessibility-aware QA
 
-Where applicable inspect: labels · buttons · keyboard navigation · focus management · forms ·
-error messages · semantic controls · basic accessibility attributes (roles, names, aria-*).
+Inspect where applicable: labels · buttons · keyboard navigation · focus management · forms · error
+messages · semantic controls · roles, names, `aria-*`. `--a11y` injects axe-core after each browser
+test and records violations as observations next to the result.
 
-Report findings as observations. Do not claim WCAG compliance unless an actual accessibility
-audit has been performed.
+Report findings as observations. Do not claim WCAG compliance unless an actual accessibility audit
+has been performed.
 
 ---
 
 ## Gate 20 — Browser strategy
 
-Default: Chromium/Chrome. Configurable: Firefox, Edge. Run critical regression across multiple
-browsers when the project requires it (`python run_tests.py --browser firefox --priority P0`).
+Default Chrome/Chromium; Firefox and Edge configurable (`--browser`); Selenium Grid / cloud via
+`--remote-url`; Chrome mobile emulation via `--device` for responsive checks. Run the P0 set on a
+second browser when the project supports it: `python run_tests.py --browser firefox --priority P0`.
 
-Support headless and headed (`--headless` / `--headed`). Headed runs are for investigating a
-failure you cannot explain from artifacts; CI runs headless.
-
-Record the browser and version used in every report — a "passes on Chrome" result is a browser
+Headless in CI; headed (`--headed`) only to investigate a failure the artifacts cannot explain.
+Record browser and driver versions in every report (the runner does) — a pass on Chrome is a Chrome
 result, not an application-wide one.

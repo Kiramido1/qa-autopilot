@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Task evals for the selenium-qa-automation skill. Each eval is a realistic prompt plus objective assertions. Run with-skill and baseline (no skill) in Claude Code, then apply evals/check_engagement.py and the grep assertions below; record results in benchmark.md.",
+  "setup": {
+    "app": "assets/demo-app/app.py (pip install flask; python app.py → http://127.0.0.1:5000)",
+    "accounts": "qa.user@example.test / Password123! · qa.admin@example.test / Password123!",
+    "checker": "python evals/check_engagement.py <workdir>"
+  },
+  "evals": [
+    {
+      "id": "E1-full-engagement",
+      "prompt": "QA this Flask app end to end and build a regression suite for it. The app is in ./app.py (python app.py, port 5000). Test accounts are qa.user@example.test and qa.admin@example.test, password Password123!.",
+      "workdir": "a copy of assets/demo-app/ as the repository under test",
+      "assertions": [
+        {"id": "executed", "check": "qa/reports/*/report.json exists (tests were executed, not just written)"},
+        {"id": "smoke-first", "check": "the earliest report.json contains ENV-001..ENV-003 (Gate 0 exit criterion executed before other tests)"},
+        {"id": "no-sleep", "check": "grep -rn 'time.sleep' qa/ --include=*.py returns nothing"},
+        {"id": "no-abs-xpath", "check": "grep -rn '/html/body' qa/ returns nothing"},
+        {"id": "artifacts", "check": "all ten qa-artifacts/*.md exist with no EXAMPLE markers left"},
+        {"id": "p0-critical", "check": "every feature ranked Critical in feature-inventory.md has a P0 case in test-cases.md"},
+        {"id": "authz-api", "check": "at least one browser=False test asserts a 401/403 (authorization checked at the API)"},
+        {"id": "traceability", "check": "traceability-matrix.md starts with the '> Generated … --traceability' line"},
+        {"id": "status-lines", "check": "the transcript contains a 5-line gate status after at least Gates 0, 4 and 13 and no artifact pasted in full"}
+      ]
+    },
+    {
+      "id": "E2-triage-injected-defect",
+      "prompt": "Our UI tests are red again. Please figure out whether it's the app or the tests and report properly. The suite is in ./qa, the app runs with DEMO_BUGS=stale-dashboard python app.py.",
+      "workdir": "assets/demo-app/ with the framework skeleton already scaffolded into ./qa",
+      "assertions": [
+        {"id": "reproduced", "check": "a report.json with ITEM-001 in ERROR/FAIL exists, and a later report.json with --repeat >= 5 for ITEM-001"},
+        {"id": "classified", "check": "execution-report.md classifies ITEM-001 as REAL_APPLICATION_BUG citing items-after-create.json (API has the item) and page_source (UI does not)"},
+        {"id": "not-flaky", "check": "no FLAKY_TEST classification for ITEM-001; frequency n/5 stated"},
+        {"id": "defect-format", "check": "defects.md has BUG-001 with every field filled, SEVERITY High or Critical with a rubric criterion, ROOT CAUSE app.py dashboard()"},
+        {"id": "not-weakened", "check": "git diff of qa/tests shows no removed assert_* call and no widened expectation"},
+        {"id": "regression", "check": "regression-report.md has a blast-radius table listing ITEM-001, ITEM-002 and AUTH-001"}
+      ]
+    },
+    {
+      "id": "E3-pr-impact",
+      "prompt": "Which tests does this change affect? Run the regression that matters. Diff: app.py dashboard() now reads visible_items(user) again instead of STALE_SNAPSHOT.",
+      "workdir": "assets/demo-app/ with ./qa and a previous qa-artifacts/ set (copy assets/examples/demo-app-engagement/qa-artifacts)",
+      "assertions": [
+        {"id": "resumed", "check": "the transcript shows scripts/qa_status.py (or an equivalent read of qa-artifacts/) before any new artifact is written; finished artifacts are not regenerated"},
+        {"id": "blast-radius", "check": "regression-report.md maps dashboard() → items table → F-002/F-003/F-004 → ITEM-001..003, AUTH-001, AUTH-004"},
+        {"id": "targeted-run", "check": "a report.json exists whose selection contains --feature items or the listed --test ids, run before any full run"},
+        {"id": "conclusion", "check": "regression-report.md ends with a safe/not-safe conclusion citing the run id"}
+      ]
+    },
+    {
+      "id": "E4-existing-suite",
+      "prompt": "Add Selenium coverage for the delete-item dialog. We already have tests in tests/ui using pytest-selenium; keep our conventions.",
+      "workdir": "assets/demo-app/ plus a minimal tests/ui/conftest.py + test_login.py using pytest and selenium",
+      "assertions": [
+        {"id": "conflict-rule", "check": "no second runner is installed (no qa/run_tests.py); new tests live in tests/ui and use the project's fixtures"},
+        {"id": "evidence-hook", "check": "a pytest hook or fixture captures screenshot + page source on failure was added or already exists"},
+        {"id": "artifacts-still", "check": "qa-artifacts/ is produced (environment map, test cases with ids, execution report) even though the runner differs"},
+        {"id": "stated", "check": "environment-map.md states which runner is used and why"}
+      ]
+    },
+    {
+      "id": "E5-blocked",
+      "prompt": "Write and run Selenium E2E tests for this app.",
+      "workdir": "assets/demo-app/ on a machine with no browser installed (or QA_CHROME_BINARY pointing at a missing file)",
+      "assertions": [
+        {"id": "honest-block", "check": "the final message says the work is blocked at Gate 13 (or Gate 0) with the exact exception text and the evidence path"},
+        {"id": "no-fake-pass", "check": "no execution-report.md claims PASS for a browser test; ENV-002 is ERROR or the run is absent"},
+        {"id": "api-tests-ran", "check": "browser=False tests (API) were still executed and reported"}
+      ]
+    }
+  ]
+}

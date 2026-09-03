@@ -3,5 +3,8 @@ __pycache__/
 .venv/
 reports/
 .env
+.cache/
 *.skill
 .DS_Store
+.mypy_cache/
+.ruff_cache/

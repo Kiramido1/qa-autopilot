@@ -1,12 +1,14 @@
-"""Explicit, named waits. No time.sleep() anywhere in the framework.
+"""Explicit, named waits. No sleep-based synchronization anywhere in the framework.
 
 Every wait describes the state it is waiting for, and a timeout raises a
 TimeoutException that names that state and the current URL — so a
 SYNCHRONIZATION_FAILURE is distinguishable from a real defect during triage.
 """
+
 from __future__ import annotations
 
-from typing import Callable, Optional
+from collections.abc import Callable
+from typing import Optional
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
@@ -63,9 +65,7 @@ class Waits:
         return self.until(enough, f"at least {minimum} element(s): {describe(locator)}", timeout)
 
     def text_present(self, locator: Locator, text: str, timeout: Optional[float] = None) -> bool:
-        return self.until(
-            EC.text_to_be_present_in_element(locator, text), f"text {text!r} in {describe(locator)}", timeout
-        )
+        return self.until(EC.text_to_be_present_in_element(locator, text), f"text {text!r} in {describe(locator)}", timeout)
 
     def attribute_equals(self, locator: Locator, attribute: str, value: str, timeout: Optional[float] = None):
         def matches(driver):
@@ -80,9 +80,7 @@ class Waits:
 
     # ---- navigation ---------------------------------------------------
     def page_ready(self, timeout: Optional[float] = None) -> bool:
-        return self.until(
-            lambda d: d.execute_script("return document.readyState") == "complete", "document.readyState complete", timeout
-        )
+        return self.until(lambda d: d.execute_script("return document.readyState") == "complete", "document.readyState complete", timeout)
 
     def url_contains(self, fragment: str, timeout: Optional[float] = None) -> bool:
         return self.until(EC.url_contains(fragment), f"url contains {fragment!r}", timeout)
@@ -95,9 +93,7 @@ class Waits:
 
     def frame(self, locator: Locator, timeout: Optional[float] = None):
         """Wait for an iframe and switch into it. Call driver.switch_to.default_content() afterwards."""
-        return self.until(
-            EC.frame_to_be_available_and_switch_to_it(locator), f"frame available: {describe(locator)}", timeout
-        )
+        return self.until(EC.frame_to_be_available_and_switch_to_it(locator), f"frame available: {describe(locator)}", timeout)
 
     def alert(self, timeout: Optional[float] = None):
         return self.until(EC.alert_is_present(), "alert present", timeout)

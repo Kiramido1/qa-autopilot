@@ -1,0 +1,14 @@
+[
+  {
+    "level": "DEBUG",
+    "message": "http://127.0.0.1:5000/login - [DOM] Input elements should have autocomplete attributes (suggested: \"current-password\"): (More info: https://goo.gl/9p2vKq) %o",
+    "source": "recommendation",
+    "timestamp": 1788430900574
+  },
+  {
+    "level": "SEVERE",
+    "message": "http://127.0.0.1:5000/favicon.ico - Failed to load resource: the server responded with a status of 404 (NOT FOUND)",
+    "source": "network",
+    "timestamp": 1788430900583
+  }
+]

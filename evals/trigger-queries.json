@@ -1,0 +1,27 @@
+{
+  "description": "Trigger evals for the SKILL.md description. 'should' queries must load the skill; 'should_not' are near misses that must not. Method and results are in benchmark.md.",
+  "should": [
+    "QA this repo end to end and build a regression suite.",
+    "Write Selenium tests for the admin dashboard: login, user management, exports.",
+    "These UI tests are red, figure out whether it's the app or the tests.",
+    "Which tests does this PR affect? Run the regression that matters.",
+    "Build a browser test automation framework for our Django app in Python.",
+    "Add E2E coverage for the checkout flow, we use Selenium already in tests/ui.",
+    "Can you test the web app in this repo and tell me what's broken?",
+    "Our Selenium suite is flaky — investigate and fix the real problems, not the symptoms.",
+    "اختبر الموقع ده كله واعمل regression suite بالسيلينيوم",
+    "Set up UI test automation for the React frontend and the API behind it, with reports I can put in CI."
+  ],
+  "should_not": [
+    "Write unit tests for the parse_date helper.",
+    "Add pytest tests for the API serializers.",
+    "Load test the /search endpoint with 500 concurrent users.",
+    "We use Playwright — add a test for the login page.",
+    "Write Cypress tests for the signup form.",
+    "Set up visual regression screenshots with Percy.",
+    "Review this PR for code quality.",
+    "Pen-test our staging environment.",
+    "Write tests for the Android app's login screen.",
+    "Explain how Selenium's explicit waits work."
+  ]
+}

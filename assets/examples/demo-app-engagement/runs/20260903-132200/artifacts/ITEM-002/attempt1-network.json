@@ -1,0 +1,13 @@
+{
+  "total_requests": 5,
+  "problems": [
+    {
+      "url": "http://127.0.0.1:5000/favicon.ico",
+      "method": "GET",
+      "status": 404,
+      "error": null,
+      "type": "Other"
+    }
+  ],
+  "available": true
+}

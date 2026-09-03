@@ -1,0 +1,29 @@
+<html lang="en"><head><meta charset="utf-8"><title>Dashboard · Demo</title>
+<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem}
+.toast{background:#e6f4ea;border:1px solid #34a853;padding:.5rem 1rem;margin:1rem 0}
+.error{color:#b00020}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:.4rem;text-align:left}
+[role=dialog]{border:1px solid #333;padding:1rem;background:#fff;position:fixed;top:30%;left:50%;transform:translateX(-50%)}
+[hidden]{display:none!important}</style></head><body><nav><span data-testid="user-name">QA User</span> · <span data-testid="user-role">user</span>
+· <a href="/logout" data-testid="logout-link">Sign out</a></nav>
+<h1>Dashboard</h1>
+<div class="toast" data-testid="toast" role="status">Item deleted</div>
+
+<form method="post" action="/items" data-testid="item-form">
+<label for="name">New item</label> <input id="name" name="name" data-testid="item-name" maxlength="50">
+<button type="submit" data-testid="item-create">Create</button></form>
+<table data-testid="items-table"><thead><tr><th>ID</th><th>Name</th><th>Owner</th><th>Actions</th></tr></thead><tbody>
+<tr data-testid="item-row" data-item-id="1"><td>1</td><td data-testid="item-name-cell">Quarterly report</td><td>qa.user@example.test</td>
+<td><button type="button" data-testid="item-delete-1" onclick="openDialog(1, 'Quarterly report')">Delete</button></td></tr>
+<tr data-testid="item-row" data-item-id="2"><td>2</td><td data-testid="item-name-cell">Launch checklist</td><td>qa.user@example.test</td>
+<td><button type="button" data-testid="item-delete-2" onclick="openDialog(2, 'Launch checklist')">Delete</button></td></tr>
+<tr data-testid="item-row" data-item-id="7"><td>7</td><td data-testid="item-name-cell">Seeded 20260903132140-z0wgk9</td><td>qa.user@example.test</td>
+<td><button type="button" data-testid="item-delete-7" onclick="openDialog(7, 'Seeded 20260903132140-z0wgk9')">Delete</button></td></tr>
+</tbody></table>
+<div role="dialog" aria-modal="true" aria-labelledby="dlg-title" data-testid="confirm-dialog" hidden="">
+<h2 id="dlg-title">Delete item?</h2><p data-testid="dialog-body"></p>
+<form method="post" id="delete-form"><button type="submit" data-testid="modal-confirm">Delete</button>
+<button type="button" data-testid="modal-cancel" onclick="closeDialog()">Cancel</button></form></div>
+<script>function openDialog(id,name){const d=document.querySelector('[role=dialog]');d.hidden=false;
+document.querySelector('[data-testid=dialog-body]').textContent='Delete "'+name+'"? This cannot be undone.';
+document.getElementById('delete-form').action='/items/'+id+'/delete';}
+function closeDialog(){document.querySelector('[role=dialog]').hidden=true;}</script></body></html>

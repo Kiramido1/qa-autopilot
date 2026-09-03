@@ -3,10 +3,12 @@
 Keep assertions strong: a weakened or removed assertion hides defects, which
 is exactly what this framework exists to surface.
 """
+
 from __future__ import annotations
 
 import re
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from core.exceptions import AssertionFailure
 
@@ -69,6 +71,5 @@ def assert_status(response, expected: int, message: str = "unexpected HTTP statu
     if response.status_code != expected:
         body = response.text[:500] if hasattr(response, "text") else ""
         raise AssertionFailure(
-            _detail(f"{message} for {response.request.method} {response.url}", expected, response.status_code)
-            + f"\n  body:     {body!r}"
+            _detail(f"{message} for {response.request.method} {response.url}", expected, response.status_code) + f"\n  body:     {body!r}"
         )

@@ -1,0 +1,104 @@
+name: qa
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  runner-selftest:
+    name: Runner self-test (no browser)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install -r assets/framework-skeleton/requirements.txt
+      - name: Self-test
+        run: python assets/framework-skeleton/run_tests.py --selftest
+      - name: Scaffold into a temporary repo
+        run: |
+          mkdir -p /tmp/target && python scripts/scaffold_qa.py /tmp/target --with-artifacts
+          python /tmp/target/qa/run_tests.py --list
+          python /tmp/target/qa/run_tests.py --traceability
+
+  lint:
+    name: Lint & type-check the skeleton
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r assets/framework-skeleton/requirements-dev.txt
+      - name: Ruff
+        working-directory: assets/framework-skeleton
+        run: ruff check . && ruff format --check .
+      - name: Mypy
+        working-directory: assets/framework-skeleton
+        run: mypy .
+
+  browser:
+    name: Demo app · ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    needs: runner-selftest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+    env:
+      QA_BROWSER: ${{ matrix.browser }}
+      QA_HEADLESS: "true"
+      QA_CHROME_NO_SANDBOX: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Chrome
+        if: matrix.browser == 'chrome'
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      - name: Install Firefox
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+      - name: Install dependencies
+        run: |
+          pip install -r assets/framework-skeleton/requirements.txt
+          pip install -r assets/demo-app/requirements.txt
+      - name: Run the skeleton against the demo app (all phases)
+        run: python scripts/run_demo.py --run-id ci-${{ matrix.browser }} --retries 1
+      - name: Parallel run (chrome only)
+        if: matrix.browser == 'chrome'
+        run: python scripts/run_demo.py --run-id ci-${{ matrix.browser }}-parallel --parallel 3
+      - name: Injected defect is detected (must exit 1)
+        run: |
+          set +e
+          python scripts/run_demo.py --bugs stale-dashboard --run-id ci-${{ matrix.browser }}-bug --test ITEM-001 --test API-002
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then echo "expected exit 1 for the injected defect, got $code"; exit 1; fi
+          grep -q "ITEM-001" assets/framework-skeleton/reports/ci-${{ matrix.browser }}-bug/junit.xml
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-${{ matrix.browser }}
+          path: assets/framework-skeleton/reports/
+          if-no-files-found: warn
+      - name: Publish JUnit summary
+        if: always()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: assets/framework-skeleton/reports/ci-${{ matrix.browser }}/junit.xml
+          check_name: junit-${{ matrix.browser }}
+          fail_on_failure: false
+          require_tests: false

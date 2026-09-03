@@ -1,0 +1,30 @@
+# Tooling for the QA suite (the suite itself has no build step).
+#   pip install -r requirements-dev.txt
+#   ruff check . && ruff format --check . && mypy .
+
+[tool.ruff]
+line-length = 140
+target-version = "py310"
+exclude = ["reports", ".cache", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "T20"]
+ignore = [
+  "T201",   # print() is the runner's UI
+  "B008",   # function calls in defaults are fine for locators
+  "UP007",  # Optional[...] and X | None are both fine
+  "UP045",
+  "SIM105", # explicit try/except over contextlib.suppress in evidence capture
+  "B904",
+  "E501",   # long assertion messages are more useful than wrapped ones
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B018"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = false
+exclude = "(reports|\\.cache|\\.venv)/"

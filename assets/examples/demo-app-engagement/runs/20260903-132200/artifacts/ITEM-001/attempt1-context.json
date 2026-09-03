@@ -1,0 +1,60 @@
+{
+  "test_id": "ITEM-001",
+  "feature": "items",
+  "priority": "P0",
+  "captured_at": "2026-09-03T10:21:51.485341+00:00",
+  "browser": "chrome",
+  "browser_info": {
+    "name": "chrome",
+    "version": "151.0.7922.173",
+    "driver_version": "151.0.7922.173",
+    "platform": "linux"
+  },
+  "headless": true,
+  "base_url": "http://127.0.0.1:5000",
+  "aborted": null,
+  "last_api_exchange": {
+    "method": "GET",
+    "url": "http://127.0.0.1:5000/api/items",
+    "request_headers": {
+      "User-Agent": "python-requests/2.32.3",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept": "application/json",
+      "Connection": "keep-alive",
+      "Cookie": "<redacted>"
+    },
+    "request_body": null,
+    "status": 200,
+    "elapsed_ms": 1,
+    "response_headers": {
+      "Server": "Werkzeug/3.1.4 Python/3.13.11",
+      "Date": "Thu, 03 Sep 2026 10:21:41 GMT",
+      "Content-Type": "application/json",
+      "Content-Length": "288",
+      "Vary": "Cookie",
+      "Connection": "close"
+    },
+    "response_body": [
+      {
+        "id": 1,
+        "name": "Quarterly report",
+        "owner": "qa.user@example.test"
+      },
+      {
+        "id": 2,
+        "name": "Launch checklist",
+        "owner": "qa.user@example.test"
+      },
+      {
+        "id": 7,
+        "name": "Seeded 20260903132140-z0wgk9",
+        "owner": "qa.user@example.test"
+      },
+      {
+        "id": 8,
+        "name": "Item 20260903132140-el19js",
+        "owner": "qa.user@example.test"
+      }
+    ]
+  }
+}

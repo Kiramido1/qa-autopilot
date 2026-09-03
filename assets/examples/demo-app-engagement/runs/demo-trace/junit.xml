@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="qa" tests="1" failures="0" errors="0" skipped="0" time="2.746" timestamp="2026-09-03T11:15:46.341649+00:00">
+  <properties>
+    <property name="env_name" value="local" />
+    <property name="base_url" value="http://127.0.0.1:5094" />
+    <property name="browser" value="chrome" />
+    <property name="headless" value="True" />
+    <property name="build_id" value="demo-app" />
+    <property name="git_sha" value="425eb02f0930754f2914dd40fa461045118bbbf6" />
+    <property name="git_branch" value="main" />
+    <property name="browser_version" value="151.0.7922.173" />
+  </properties>
+  <testcase classname="tests.e2e.test_items_example" name="ITEM-001 test_create_item_appears_in_table_and_api" time="2.733">
+    <system-out>attempt 1 attachment: artifacts/ITEM-001/items-after-create.json
+attempt 1 attachment: artifacts/ITEM-001/attempt1-a11y.json</system-out>
+  </testcase>
+</testsuite>

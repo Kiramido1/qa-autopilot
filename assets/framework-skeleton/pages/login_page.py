@@ -1,23 +1,23 @@
-"""EXAMPLE page object.
+"""EXAMPLE page object (matches the bundled demo app; adapt to the real DOM).
 
 Locators follow the Gate 7 priority (data-testid > stable id > name > semantic
 > stable CSS > relative XPath). Replace them with what the real DOM offers, and
 ask developers for data-testid attributes where nothing stable exists.
 """
+
 from __future__ import annotations
 
-from selenium.webdriver.common.by import By
-
 from core.base_page import BasePage
+from core.locators import by_testid
 
 
 class LoginPage(BasePage):
     path = "/login"
 
-    EMAIL = (By.CSS_SELECTOR, "[data-testid='login-email']")
-    PASSWORD = (By.CSS_SELECTOR, "[data-testid='login-password']")
-    SUBMIT = (By.CSS_SELECTOR, "[data-testid='login-submit']")
-    ERROR = (By.CSS_SELECTOR, "[data-testid='login-error']")
+    EMAIL = by_testid("login-email")
+    PASSWORD = by_testid("login-password")
+    SUBMIT = by_testid("login-submit")
+    ERROR = by_testid("login-error")
 
     ready_locator = SUBMIT
 

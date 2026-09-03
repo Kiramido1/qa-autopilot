@@ -1,8 +1,10 @@
 """Framework exception types. The runner maps them to result statuses:
 
-  AssertionFailure -> FAIL   (expected vs actual mismatch: the app or the expectation is wrong)
-  TestSkipped      -> SKIP   (missing precondition, reported with its reason — never silent)
-  anything else    -> ERROR  (locator, timeout, driver, network... needs triage like a failure)
+AssertionFailure -> FAIL   (expected vs actual mismatch: the app or the expectation is wrong)
+TestSkipped      -> SKIP   (missing precondition, reported with its reason — never silent)
+TestTimeout      -> ERROR  (the per-test watchdog fired; the driver was quit to unblock the run)
+HookError        -> ERROR  (setup_module / setup_session failed; every dependent test is ERROR)
+anything else    -> ERROR  (locator, timeout, driver, network... needs triage like a failure)
 """
 
 
@@ -16,6 +18,14 @@ class AssertionFailure(QAError):
 
 class TestSkipped(QAError):
     """Raised via ctx.skip(reason) when a precondition is not available."""
+
+
+class TestTimeout(QAError):
+    """The per-test watchdog expired (see --timeout)."""
+
+
+class HookError(QAError):
+    """A module or session hook failed."""
 
 
 class PageNotReady(QAError):

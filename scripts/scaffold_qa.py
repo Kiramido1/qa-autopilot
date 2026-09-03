@@ -9,6 +9,7 @@ into a target repository.
 Existing files are never overwritten (they are reported as skipped), so
 re-running after adapting the framework is safe.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -19,7 +20,7 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 SKELETON = SKILL_ROOT / "assets" / "framework-skeleton"
 ARTIFACT_TEMPLATES = SKILL_ROOT / "assets" / "artifact-templates"
-IGNORED = {"__pycache__", "reports", ".pyc"}
+IGNORED = {"__pycache__", "reports", ".pyc", ".cache", ".mypy_cache", ".ruff_cache", ".env"}
 
 
 def copy_tree(source: Path, target: Path) -> tuple[int, int]:
@@ -74,9 +75,11 @@ def main(argv=None) -> int:
         f"  cd {qa_dir}\n"
         "  pip install -r requirements.txt\n"
         "  cp .env.example .env      # fill URLs and disposable test accounts\n"
+        "  python run_tests.py --selftest      # prove the runner before trusting a result\n"
         "  python run_tests.py --list\n"
-        "  python run_tests.py --smoke\n"
-        "Then replace the EXAMPLE page objects, flows and tests with the real ones."
+        "  python run_tests.py --smoke         # Gate 0 exit criterion: ENV-* executed\n"
+        "Then replace the EXAMPLE page objects, flows and tests with the real ones, and\n"
+        "regenerate the matrix with: python run_tests.py --traceability"
     )
     return 0
 

@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="qa" tests="14" failures="0" errors="2" skipped="0" time="30.675" timestamp="2026-09-03T10:21:34.684953+00:00">
+  <properties>
+    <property name="env_name" value="local" />
+    <property name="base_url" value="http://127.0.0.1:5000" />
+    <property name="browser" value="chrome" />
+    <property name="headless" value="True" />
+    <property name="build_id" value="demo-app@stale-dashboard" />
+    <property name="git_sha" value="425eb02f0930754f2914dd40fa461045118bbbf6" />
+    <property name="git_branch" value="main" />
+    <property name="browser_version" value="151.0.7922.173" />
+  </properties>
+  <testcase classname="tests.integration.test_api_example" name="API-001 test_me_requires_authentication" time="0.004">
+    <system-out>attempt 1 attachment: artifacts/API-001/me-anonymous.json</system-out>
+  </testcase>
+  <testcase classname="tests.integration.test_api_example" name="API-003 test_user_cannot_delete_another_users_item" time="0.019">
+    <system-out>attempt 1 attachment: artifacts/API-003/idor-attempt.json</system-out>
+  </testcase>
+  <testcase classname="tests.integration.test_api_example" name="API-002 test_item_name_boundaries" time="0.021">
+    <system-out>attempt 1 attachment: artifacts/API-002/boundaries-last-exchange.json</system-out>
+  </testcase>
+  <testcase classname="tests.integration.test_api_example" name="API-004 test_items_are_scoped_to_owner" time="0.006">
+    <system-out>attempt 1 attachment: artifacts/API-004/items.json</system-out>
+  </testcase>
+  <testcase classname="tests.regression.test_login_example" name="AUTH-001 test_login_with_valid_credentials" time="0.952">
+    <system-out>attempt 1 attachment: artifacts/AUTH-001/me.json</system-out>
+  </testcase>
+  <testcase classname="tests.regression.test_login_example" name="AUTH-002 test_login_with_invalid_password_shows_error" time="0.921" />
+  <testcase classname="tests.regression.test_login_example" name="AUTH-003 test_protected_page_redirects_anonymous_user" time="0.606" />
+  <testcase classname="tests.regression.test_login_example" name="AUTH-004 test_logout_invalidates_session" time="2.15" />
+  <testcase classname="tests.smoke.test_environment" name="ENV-001 test_settings_are_configured" time="0.001" />
+  <testcase classname="tests.smoke.test_environment" name="ENV-002 test_application_loads_in_browser" time="0.683">
+    <system-out>attempt 1 attachment: artifacts/ENV-002/landing.png</system-out>
+  </testcase>
+  <testcase classname="tests.smoke.test_environment" name="ENV-003 test_api_health_endpoint_responds" time="0.004">
+    <system-out>attempt 1 attachment: artifacts/ENV-003/health-response.json</system-out>
+  </testcase>
+  <testcase classname="tests.e2e.test_items_example" name="ITEM-001 test_create_item_appears_in_table_and_api" time="11.545">
+    <error message="TimeoutException: Message: table row containing 'Item 20260903132140-el19js' (waited 10.0s; url=http://127.0.0.1:5000/dashboard)" type="Error">TimeoutException: Message: table row containing 'Item 20260903132140-el19js' (waited 10.0s; url=http://127.0.0.1:5000/dashboard)</error>
+    <system-out>attempt 1 exception: artifacts/ITEM-001/attempt1-exception.txt
+attempt 1 screenshot: artifacts/ITEM-001/attempt1-screenshot.png
+attempt 1 url: http://127.0.0.1:5000/dashboard
+attempt 1 page_source: artifacts/ITEM-001/attempt1-page_source.html
+attempt 1 browser_console: artifacts/ITEM-001/attempt1-browser_console.json
+attempt 1 network: artifacts/ITEM-001/attempt1-network.json
+attempt 1 network_problems: 1
+attempt 1 context: artifacts/ITEM-001/attempt1-context.json
+attempt 1 attachment: artifacts/ITEM-001/items-after-create.json</system-out>
+  </testcase>
+  <testcase classname="tests.e2e.test_items_example" name="ITEM-002 test_delete_item_via_confirm_dialog" time="11.306">
+    <error message="TimeoutException: Message: table row containing 'Seeded 20260903132140-z0wgk9' gone (waited 10.0s; url=http://127.0.0.1:5000/dashboard)" type="Error">TimeoutException: Message: table row containing 'Seeded 20260903132140-z0wgk9' gone (waited 10.0s; url=http://127.0.0.1:5000/dashboard)</error>
+    <system-out>attempt 1 exception: artifacts/ITEM-002/attempt1-exception.txt
+attempt 1 screenshot: artifacts/ITEM-002/attempt1-screenshot.png
+attempt 1 url: http://127.0.0.1:5000/dashboard
+attempt 1 page_source: artifacts/ITEM-002/attempt1-page_source.html
+attempt 1 browser_console: artifacts/ITEM-002/attempt1-browser_console.json
+attempt 1 network: artifacts/ITEM-002/attempt1-network.json
+attempt 1 network_problems: 1
+attempt 1 context: artifacts/ITEM-002/attempt1-context.json</system-out>
+  </testcase>
+  <testcase classname="tests.e2e.test_items_example" name="ITEM-003 test_cancelled_delete_keeps_item" time="2.438" />
+</testsuite>

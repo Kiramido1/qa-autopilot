@@ -3,6 +3,7 @@
 Unique values keep tests independent of each other and of leftover records;
 boundary helpers make min/max/just-outside cases explicit instead of ad hoc.
 """
+
 from __future__ import annotations
 
 import random
@@ -55,7 +56,7 @@ def boundary_strings(min_len: int, max_len: int) -> dict:
 SPECIAL_INPUTS = {
     "unicode": "Ünïcødé 测试 عربى 🚀",
     "html_markup": "<b>bold</b> <script>alert(1)</script>",
-    "quotes": "O'Brien \"quoted\" `back`",
+    "quotes": 'O\'Brien "quoted" `back`',
     "sql_like": "' OR '1'='1",
     "leading_trailing_space": "  padded  ",
     "very_long": string_of_length(5000),

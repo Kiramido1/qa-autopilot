@@ -1,0 +1,27 @@
+{
+  "method": "GET",
+  "url": "http://127.0.0.1:5000/api/me",
+  "request_headers": {
+    "User-Agent": "python-requests/2.32.3",
+    "Accept-Encoding": "gzip, deflate, br, zstd",
+    "Accept": "application/json",
+    "Connection": "keep-alive",
+    "Cookie": "<redacted>"
+  },
+  "request_body": null,
+  "status": 200,
+  "elapsed_ms": 1,
+  "response_headers": {
+    "Server": "Werkzeug/3.1.4 Python/3.13.11",
+    "Date": "Thu, 03 Sep 2026 10:21:35 GMT",
+    "Content-Type": "application/json",
+    "Content-Length": "64",
+    "Vary": "Cookie",
+    "Connection": "close"
+  },
+  "response_body": {
+    "email": "qa.user@example.test",
+    "name": "QA User",
+    "role": "user"
+  }
+}

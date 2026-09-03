@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "/media/alpha/36A212E9A212ACFD6/files_extracted/selenium-qa-automation/assets/framework-skeleton/core/waits.py", line 32, in until
+    return WebDriverWait(self.driver, limit, poll_frequency=self.poll).until(condition)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/selenium/webdriver/support/wait.py", line 105, in until
+    raise TimeoutException(message, screen, stacktrace)
+selenium.common.exceptions.TimeoutException: Message: 
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/media/alpha/36A212E9A212ACFD6/files_extracted/selenium-qa-automation/assets/framework-skeleton/core/engine.py", line 241, in invoke
+    case.func(ctx)
+    ~~~~~~~~~^^^^^
+  File "/media/alpha/36A212E9A212ACFD6/files_extracted/selenium-qa-automation/assets/framework-skeleton/tests/e2e/test_items_example.py", line 50, in test_delete_item_via_confirm_dialog
+    dashboard.table.wait_for_row_gone(seeded["name"])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/media/alpha/36A212E9A212ACFD6/files_extracted/selenium-qa-automation/assets/framework-skeleton/components/table.py", line 43, in wait_for_row_gone
+    return self.wait.until(lambda d: self.row_by_text(text) is None, f"table row containing {text!r} gone", timeout)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/alpha/36A212E9A212ACFD6/files_extracted/selenium-qa-automation/assets/framework-skeleton/core/waits.py", line 34, in until
+    raise TimeoutException(f"{message} (waited {limit}s; url={self._url()})") from error
+selenium.common.exceptions.TimeoutException: Message: table row containing 'Seeded 20260903132140-z0wgk9' gone (waited 10.0s; url=http://127.0.0.1:5000/dashboard)
+

@@ -1,4 +1,5 @@
 """Screenshot helper that never masks the original failure."""
+
 from __future__ import annotations
 
 from pathlib import Path

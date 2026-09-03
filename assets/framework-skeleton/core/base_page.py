@@ -3,6 +3,7 @@
 A page owns its locators, its UI actions and its readiness check. Business
 assertions belong in tests (or flows), not here — keep pages reusable.
 """
+
 from __future__ import annotations
 
 from typing import Optional
@@ -10,12 +11,13 @@ from typing import Optional
 from selenium.common.exceptions import TimeoutException
 
 from core.exceptions import PageNotReady
-from core.waits import Locator, Waits
+from core.trace import trace
+from core.waits import Locator, Waits, describe
 
 
 class BasePage:
-    path: str = "/"                      # relative to settings.base_url
-    ready_locator: Optional[Locator] = None   # an element that proves the page rendered
+    path: str = "/"  # relative to settings.base_url
+    ready_locator: Optional[Locator] = None  # an element that proves the page rendered
 
     def __init__(self, driver, settings, timeout: Optional[float] = None):
         self.driver = driver
@@ -29,6 +31,7 @@ class BasePage:
     def open(self):
         self.driver.get(self.url())
         self.wait_until_ready()
+        trace("open", self.path)
         return self
 
     def wait_until_ready(self, timeout: Optional[float] = None):
@@ -54,6 +57,7 @@ class BasePage:
     # ---- interactions -------------------------------------------------
     def click(self, locator: Locator):
         self.wait.clickable(locator).click()
+        trace("click", describe(locator))
         return self
 
     def type(self, locator: Locator, text: str, clear: bool = True):
@@ -61,7 +65,15 @@ class BasePage:
         if clear:
             element.clear()
         element.send_keys(text)
+        trace("type", describe(locator))
         return element
+
+    def select_option(self, locator: Locator, visible_text: str):
+        from selenium.webdriver.support.ui import Select
+
+        Select(self.wait.visible(locator)).select_by_visible_text(visible_text)
+        trace("select", f"{describe(locator)} -> {visible_text}")
+        return self
 
     def text_of(self, locator: Locator) -> str:
         return self.wait.visible(locator).text

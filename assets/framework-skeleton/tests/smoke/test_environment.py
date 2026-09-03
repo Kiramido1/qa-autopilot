@@ -1,5 +1,6 @@
 """Phase A — environment smoke. Proves the harness can reach the app before
-anything else is trusted."""
+anything else is trusted. Gate 0 is not complete until these have executed."""
+
 from selenium.webdriver.common.by import By
 
 from core.assertions import assert_true
@@ -20,7 +21,7 @@ def test_application_loads_in_browser(ctx):
     ctx.waits.page_ready()
     assert_true(ctx.driver.find_elements(By.TAG_NAME, "body"), "no <body> rendered at the base URL")
     ctx.screenshot("landing.png")
-    ctx.log.info("title=%r url=%s", ctx.driver.title, ctx.driver.current_url)
+    ctx.log.info("title=%r url=%s browser=%s", ctx.driver.title, ctx.driver.current_url, ctx.browser_info)
 
 
 @test(id="ENV-003", feature="environment", priority="P1", tags=("smoke", "integration"), browser=False)

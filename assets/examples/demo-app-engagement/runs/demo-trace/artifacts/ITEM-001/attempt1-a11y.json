@@ -1,0 +1,32 @@
+{
+  "available": true,
+  "url": "http://127.0.0.1:5094/dashboard",
+  "axe_version": "4.10.2",
+  "violations": [
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "help": "Document should have one main landmark",
+      "help_url": "https://dequeuniversity.com/rules/axe/4.10/landmark-one-main?application=axeAPI",
+      "nodes": 1,
+      "targets": [
+        "html"
+      ]
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "help": "All page content should be contained by landmarks",
+      "help_url": "https://dequeuniversity.com/rules/axe/4.10/region?application=axeAPI",
+      "nodes": 16,
+      "targets": [
+        "h1",
+        "label",
+        "#name"
+      ]
+    }
+  ],
+  "summary": {
+    "moderate": 2
+  }
+}

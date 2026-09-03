@@ -1,4 +1,5 @@
 """Reusable UI fragments (navbar, modal, table, toast...) scoped to a root element."""
+
 from __future__ import annotations
 
 from typing import Optional
@@ -14,14 +15,14 @@ class BaseComponent:
     def __init__(self, driver, timeout: float = 10.0, root_locator: Optional[Locator] = None):
         self.driver = driver
         self.wait = Waits(driver, timeout)
-        if root_locator is not None:
-            self.root_locator = root_locator
-        if self.root_locator is None:
+        resolved = root_locator if root_locator is not None else self.root_locator
+        if resolved is None:
             raise ValueError(f"{type(self).__name__} needs a root_locator")
+        self.locator: Locator = resolved
 
     @property
     def root(self):
-        return self.wait.visible(self.root_locator)
+        return self.wait.visible(self.locator)
 
     def find(self, locator: Locator):
         return self.root.find_element(*locator)
@@ -31,7 +32,7 @@ class BaseComponent:
 
     def is_displayed(self, timeout: float = 2.0) -> bool:
         try:
-            self.wait.visible(self.root_locator, timeout)
+            self.wait.visible(self.locator, timeout)
             return True
         except TimeoutException:
             return False
