@@ -373,6 +373,29 @@ def _run_checks(checks: Checks, qa_root: Path, tmp: Path, verbose: bool) -> None
         duplicate.unlink()
         discover(tests_dir, qa_root)
 
+    # -- session cookie sanitization (Firefox 154+ rejects SameSite=None without Secure) ----------
+    from core.session import sanitize_cookie
+
+    firefox_cookie = {
+        "name": "session",
+        "value": "x",
+        "path": "/",
+        "domain": "127.0.0.1",
+        "secure": False,
+        "httpOnly": True,
+        "sameSite": "None",
+        "expiry": 1.0,
+    }
+    cleaned = sanitize_cookie(firefox_cookie)
+    checks.check(
+        "session reuse drops SameSite=None on insecure cookies and keeps Lax/Strict",
+        "sameSite" not in cleaned
+        and cleaned["expiry"] == 1
+        and sanitize_cookie({**firefox_cookie, "sameSite": "Lax"})["sameSite"] == "Lax"
+        and "sameSite" in sanitize_cookie({**firefox_cookie, "secure": True}),
+        str(cleaned),
+    )
+
     # -- traceability --------------------------------------------------------------------
     from core.traceability import build_matrix
 

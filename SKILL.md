@@ -40,7 +40,7 @@ UNDERSTAND → MAP → RISK ASSESS → DESIGN TESTS → DESIGN AUTOMATION → IM
    ```bash
    python <skill>/scripts/scaffold_qa.py <repo> --with-artifacts
    cd <repo>/qa && pip install -r requirements.txt && cp .env.example .env   # fill URLs + disposable accounts
-   python run_tests.py --selftest      # the runner proves itself first (38 checks, no browser)
+   python run_tests.py --selftest      # the runner proves itself first (41 checks, no browser)
    python run_tests.py --smoke         # ENV-001..003: settings, browser reaches the app, API health
    ```
    Gate 0 is complete only when `--smoke` has **executed**. This front-loads the one risk that

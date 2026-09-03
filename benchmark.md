@@ -8,7 +8,7 @@ commands and update this file when the runner, the demo app or `SKILL.md` change
 
 | Check | Command | Result |
 |---|---|---|
-| Runner self-test | `python assets/framework-skeleton/run_tests.py --selftest` | 40/40 |
+| Runner self-test | `python assets/framework-skeleton/run_tests.py --selftest` | 41/41 |
 | Lint / format / types | `ruff check . && ruff format --check . && mypy .` in the skeleton; ruff on `scripts/`, `evals/`, `assets/demo-app/` | clean |
 | Full suite vs demo app, Chromium | `python scripts/run_demo.py --retries 1` | 14/14 PASS, exit 0, 10.7 s |
 | Full suite, Firefox | `QA_BROWSER=firefox python scripts/run_demo.py` | 14/14 PASS |
@@ -18,7 +18,7 @@ commands and update this file when the runner, the demo app or `SKILL.md` change
 | Injected defect, repeat | `--test ITEM-001 --repeat 5` | 0/5 passed → "failed 5/5 deterministically", exit 1 |
 | Mobile emulation | `--test ENV-002 --test AUTH-001 --device "iPhone 12 Pro"` | 2/2 PASS |
 | a11y + trace | `--test ITEM-001 --a11y --trace` | 1/1 PASS; axe 4.10.2: 2 moderate observations; 7 trace screenshots |
-| Fresh scaffold | `scaffold_qa.py /tmp/target --with-artifacts` → `--list`, `--traceability`, `--selftest`, `qa_status.py` | 14 listed, matrix written, 40/40, "Resume at: Gate 0" |
+| Fresh scaffold | `scaffold_qa.py /tmp/target --with-artifacts` → `--list`, `--traceability`, `--selftest`, `qa_status.py` | 14 listed, matrix written, 41/41, "Resume at: Gate 0" |
 | Worked example audit | `evals/check_engagement.py assets/examples/demo-app-engagement …` | 31/31 |
 | CI | `.github/workflows/qa.yml` | self-test on 3.10 and 3.12, lint + mypy, Chrome and Firefox demo runs, parallel run, injected-defect must exit 1 |
 

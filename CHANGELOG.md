@@ -23,7 +23,7 @@ verified against each other (see `benchmark.md`).
 - Description gains negative triggers, the "extend an existing suite" case and Arabic phrases.
 
 ### Framework skeleton
-- `--selftest` (40 runner checks, no browser), JUnit XML, relative evidence paths, `--rerun-failed`, `--repeat`,
+- `--selftest` (41 runner checks, no browser), JUnit XML, relative evidence paths, `--rerun-failed`, `--repeat`,
   per-test `--timeout` watchdog, `--parallel` per module, `setup_module`/`teardown_module` and session hooks,
   `ctx.login_once` session reuse (`--fresh-session`), network evidence from Chrome performance logs,
   redaction of headers, bodies and query strings, `--remote-url`, `--device` mobile emulation, generic

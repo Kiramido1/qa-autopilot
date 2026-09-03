@@ -45,7 +45,7 @@ custom skill; for the API, upload it through the Skills API.
 
 ```bash
 pip install -r assets/framework-skeleton/requirements.txt -r assets/demo-app/requirements.txt
-python assets/framework-skeleton/run_tests.py --selftest        # the runner proves itself: 40 checks, no browser
+python assets/framework-skeleton/run_tests.py --selftest        # the runner proves itself: 41 checks, no browser
 python scripts/run_demo.py                                       # 14 tests against the demo app → 14 pass
 python scripts/run_demo.py --bugs stale-dashboard --retries 1    # injected defect → ITEM-001/002 ERROR, exit 1
 python evals/check_engagement.py assets/examples/demo-app-engagement \
@@ -158,7 +158,7 @@ application reachable from the machine that runs the tests. Windows notes are in
 
 | What | Where | Result |
 |---|---|---|
-| Runner self-test (statuses, exit codes, cleanup, hooks, watchdog, repeat, rerun-failed, relative paths, redaction, JUnit, parallel, duplicate ids, traceability) | local, Python 3.13.11; CI 3.10 / 3.12 | 40/40 |
+| Runner self-test (statuses, exit codes, cleanup, hooks, watchdog, repeat, rerun-failed, relative paths, redaction, JUnit, parallel, duplicate ids, traceability, cookie sanitization) | local, Python 3.13.11; CI 3.10 / 3.12 | 41/41 |
 | Full suite against the demo app | Chromium 151 + chromedriver 151, Debian 13 | 14/14, 10.7 s |
 | Full suite, Firefox | Firefox 140.14 ESR + geckodriver 0.33 | 14/14 |
 | `--parallel 3` | Chromium 151 | 14/14 |

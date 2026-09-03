@@ -2,7 +2,7 @@
 
 Generated from the `selenium-qa-automation` skill. No pytest, no unittest:
 `run_tests.py` discovers, selects, executes and reports on its own, and
-`--selftest` proves the runner itself (40 checks) before you trust a single result.
+`--selftest` proves the runner itself (41 checks) before you trust a single result.
 
 ## Setup
 

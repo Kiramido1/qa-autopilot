@@ -42,15 +42,29 @@ class SessionStore:
         self._states.clear()
 
 
+_COOKIE_KEYS = ("name", "value", "path", "domain", "secure", "httpOnly", "expiry", "sameSite")
+
+
+def sanitize_cookie(cookie: dict) -> dict:
+    """A cookie as the browser reported it, reduced to what add_cookie() accepts everywhere.
+
+    Firefox reports SameSite=None for cookies the server set without a SameSite
+    attribute, then refuses to re-add such a cookie over plain HTTP unless it is
+    Secure ("rejected because it has the SameSite=None attribute but is missing
+    the secure attribute", Firefox 154+). Dropping the attribute restores the
+    browser default, which is what the server asked for in the first place.
+    """
+    clean = {k: v for k, v in cookie.items() if k in _COOKIE_KEYS}
+    if clean.get("expiry") is not None:
+        clean["expiry"] = int(clean["expiry"])
+    same_site = clean.get("sameSite")
+    if same_site not in ("Strict", "Lax", "None") or (same_site == "None" and not clean.get("secure")):
+        clean.pop("sameSite", None)
+    return clean
+
+
 def capture_state(driver) -> dict:
-    cookies = []
-    for cookie in driver.get_cookies():
-        clean = {k: v for k, v in cookie.items() if k in ("name", "value", "path", "domain", "secure", "httpOnly", "expiry", "sameSite")}
-        if "expiry" in clean and clean["expiry"] is not None:
-            clean["expiry"] = int(clean["expiry"])
-        if clean.get("sameSite") not in ("Strict", "Lax", "None"):
-            clean.pop("sameSite", None)
-        cookies.append(clean)
+    cookies = [sanitize_cookie(cookie) for cookie in driver.get_cookies()]
     try:
         storage = driver.execute_script(_STORAGE_DUMP) or {}
     except Exception:  # noqa: BLE001 - about:blank / sandboxed pages
@@ -64,8 +78,8 @@ def restore_state(driver, base_url: str, state: dict) -> None:
     for cookie in state.get("cookies", []):
         try:
             driver.add_cookie(cookie)
-        except Exception:  # noqa: BLE001 - domain mismatch: retry without it
-            driver.add_cookie({k: v for k, v in cookie.items() if k != "domain"})
+        except Exception:  # noqa: BLE001 - domain mismatch / attribute rejected: retry with the minimal cookie
+            driver.add_cookie({k: v for k, v in cookie.items() if k not in ("domain", "sameSite", "expiry")})
     try:
         driver.execute_script(_STORAGE_RESTORE, state.get("local", {}), state.get("session", {}))
     except Exception:  # noqa: BLE001
